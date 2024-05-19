@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fervexo/hardwire/client"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -23,13 +24,16 @@ func handleInput(ch chan string) {
 }
 
 func main() {
-	c, err := client.CreateClient("ws://localhost:8080/ws", "client1")
+	clientName := flag.String("name", "client1", "Client name")
+	flag.Parse()
+
+	c, err := client.CreateClient("ws://localhost:8080/", *clientName)
 	if err != nil {
 		panic(err)
 	}
 	defer c.Close()
 
-	log.Println("Client connected...")
+	log.Println("Client connected as:", *clientName, "...")
 
 	go c.Listen()
 
@@ -46,7 +50,7 @@ stdinloop:
 				c.SendMessage(stdin)
 			}
 		case <-time.After(1 * time.Second):
-			// Do something when there is nothing read from stdin
+
 		}
 	}
 	fmt.Println("Done, stdin must be closed")

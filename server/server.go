@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
@@ -13,13 +14,13 @@ import (
 type Server struct {
 	Resources map[uuid.UUID]*Resource
 	Clients   map[string]*Client
-	Commands  map[string]func(*Server, *Client, string) *CommandResponse
+	Commands  map[string]func(*Server, *Client, string) *map[string]interface{}
 	mutex     sync.Mutex
 	upgrader  websocket.Upgrader
 }
 
 func CreateServer() *Server {
-	return &Server{Resources: make(map[uuid.UUID]*Resource), Clients: make(map[string]*Client), Commands: make(map[string]func(*Server, *Client, string) *CommandResponse)}
+	return &Server{Resources: make(map[uuid.UUID]*Resource), Clients: make(map[string]*Client), Commands: make(map[string]func(*Server, *Client, string) *map[string]interface{})}
 }
 
 func (s *Server) AddResource(name string) {
@@ -32,7 +33,7 @@ func (s *Server) AddResource(name string) {
 	}
 }
 
-func (s *Server) AddCommand(name string, command func(*Server, *Client, string) *CommandResponse) {
+func (s *Server) AddCommand(name string, command func(*Server, *Client, string) *map[string]interface{}) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -44,7 +45,14 @@ func (s *Server) AddCommand(name string, command func(*Server, *Client, string) 
 func (s *Server) Broadcast(message string) {
 	for _, client := range s.Clients {
 		if client.Name != "" {
-			client.SendMessage(message)
+			message := &map[string]interface{}{"broadcast": message}
+			jsonMessage, err := json.Marshal(message)
+
+			if err != nil {
+				log.Println("Error converting message to JSON: ", err)
+			}
+
+			client.SendMessage(string(jsonMessage))
 		}
 	}
 }
@@ -105,30 +113,30 @@ func (s *Server) handleClient(c *Client) {
 
 		command, exists := s.Commands[prefix]
 		if !exists {
-			response := &CommandResponse{Error: "Invalid command"}
-			jsonResponse, err := response.toJSONString()
+			response := &map[string]interface{}{"error": "Invalid command"}
+			jsonResponse, err := json.Marshal(response)
 
 			if err != nil {
 				log.Println("Error converting response to JSON: ", err)
 			}
 
-			c.SendMessage(jsonResponse)
+			c.SendMessage(string(jsonResponse))
 
 			continue
 		}
 
 		response := command(s, c, message)
-		jsonResponse, err := response.toJSONString()
+		jsonResponse, err := json.Marshal(response)
 
 		if err != nil {
 			log.Println("Error converting response to JSON: ", err)
 		}
 
-		c.SendMessage(jsonResponse)
+		c.SendMessage(string(jsonResponse))
 	}
 }
 
 func (s *Server) Run(addr string) {
-	http.HandleFunc("/ws", s.handleConnection)
+	http.HandleFunc("/", s.handleConnection)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
