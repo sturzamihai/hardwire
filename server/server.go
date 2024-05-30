@@ -42,6 +42,10 @@ func (s *Server) AddCommand(name string, command func(*Server, *Client, string) 
 	}
 }
 
+func (s *Server) AddHelpCommand(name string, command func(*Server, *Client, string) *map[string]interface{}) {
+	s.AddCommand("help_"+name, command)
+}
+
 func (s *Server) Broadcast(message string) {
 	for _, client := range s.Clients {
 		if client.Name != "" {
