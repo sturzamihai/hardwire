@@ -141,6 +141,7 @@ func (s *Server) handleClient(c *Client) {
 }
 
 func (s *Server) Run(addr string) {
+	log.Println("Server running on port", addr)
 	http.HandleFunc("/", s.handleConnection)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }

@@ -12,11 +12,36 @@
 - A client can update the start and end times for a reservation they made previously, in which case the server will notify all authenticated clients about the change.
 - A client can delete a reservation they made previously, in which case the server will notify all authenticated clients about the deletion.
 
+## Prerequisites
+- You need to have installed at least golang v1.22.0. You can check this by running `go version`. For more information, see [how to install golang](https://go.dev/doc/install).
+
+## How to run
+- Make sure that you are in the root directory of the repository.
+- Launch the **server** using `go run server/cmd/main.go`.
+- Launch the **client** using `go run client/cmd/main.go`.
+
 ## Available commands
 
 - `list` : List all resources. 
+
+![list command](docs/media/list_command.png)
+
 - `lock [resource_id]` : Lock a resource.
+
+![lock command](docs/media/lock_command.png)
+
 - `unlock [resource_id]` : Unlock a resource.
+
+![unlock command](docs/media/unlock_command.png)
+
 - `reserve [resource_id] [reservation_id] [start|YYYY-MM-DD] [end|YYYY-MM-DD]` : Reserve a resource.
+
+![reserve command](docs/media/reserve_command.png)
+
 - `update [resource_id] [reservation_id] [start|YYYY-MM-DD] [end|YYYY-MM-DD]` : Update a reservation.
+
+![update command](docs/media/update_command.png)
+
 - `cancel [resource_id] [reservation_id]` : Cancel a reservation.
+
+![cancel command](docs/media/cancel_command.png)
