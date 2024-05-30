@@ -11,3 +11,12 @@
 - The client who locked the resource can finalize the reservation, in which case the server notifies all authenticated clients about the new reservation created.
 - A client can update the start and end times for a reservation they made previously, in which case the server will notify all authenticated clients about the change.
 - A client can delete a reservation they made previously, in which case the server will notify all authenticated clients about the deletion.
+
+## Available commands
+
+- `list` : List all resources. 
+- `lock [resource_id]` : Lock a resource.
+- `unlock [resource_id]` : Unlock a resource.
+- `reserve [resource_id] [reservation_id] [start|YYYY-MM-DD] [end|YYYY-MM-DD]` : Reserve a resource.
+- `update [resource_id] [reservation_id] [start|YYYY-MM-DD] [end|YYYY-MM-DD]` : Update a reservation.
+- `cancel [resource_id] [reservation_id]` : Cancel a reservation.
